@@ -5,6 +5,8 @@ plugins {
 group = "me.archinamon"
 version = "1.0"
 
+fun isGradleSync() = gradle.startParameter.taskNames.isEmpty()
+
 repositories {
     mavenCentral()
 }
@@ -64,5 +66,29 @@ tasks {
         workingDir = buildDir
 
         args("-i", "/Users/archinamon/Downloads/Telegram Desktop/New localization v2020 EN_RU_VI_ES_IT - в работе.csv")
+    }
+
+    afterEvaluate {
+        create("jvmArchive", Jar::class) {
+            manifest {
+                attributes(
+                    "Main-Class" to "${project.group}.i18n.runner.RunnerKt"
+                )
+            }
+
+            if (isGradleSync())
+                return@create
+
+            val dependencies = configurations["jvmRuntimeClasspath"]
+                .filter { it.name.endsWith(".jar") } +
+                project.tasks["jvmJar"].outputs.files
+            dependencies.forEach {
+                if (it.isDirectory) from(it) else from(zipTree(it))
+            }
+            exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
+            inputs.files(dependencies)
+            outputs.file(archiveFile)
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
     }
 }
