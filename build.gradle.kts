@@ -7,8 +7,11 @@ version = "1.0"
 
 fun isGradleSync() = gradle.startParameter.taskNames.isEmpty()
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+        maven("https://dl.bintray.com/archinamon/maven")
+    }
 }
 
 kotlin {
@@ -33,10 +36,31 @@ kotlin {
         }
 
         @Suppress("UNUSED_VARIABLE")
+        val commonMain by getting {
+            dependencies {
+                implementation("me.archinamon:file-io:1.0")
+            }
+        }
+
+        @Suppress("UNUSED_VARIABLE")
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
+            }
+        }
+
+        @Suppress("UNUSED_VARIABLE")
+        val jvmMain by getting {
+            dependencies {
+                implementation("me.archinamon:file-io-jvm:1.0")
+            }
+        }
+
+        @Suppress("UNUSED_VARIABLE")
+        val macosX64Main by getting {
+            dependencies {
+                implementation("me.archinamon:file-io-posix:1.0")
             }
         }
     }
